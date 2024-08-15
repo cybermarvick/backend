@@ -4,6 +4,7 @@ const mongoose = require("mongoose")
 const env = require("dotenv").config()
 const userrouter = require("./Route/userrouter")
 const cors = require("cors")
+const socket = require("socket.io")
 
 app.use(cors({origin:"*"}))
 app.use(express.urlencoded({extended: true}))
@@ -29,6 +30,19 @@ connect()
 
 const port = process.env.PORT
 
-app.listen(port, ()=>{
+const connection = app.listen(port, ()=>{
     console.log(`app started at port ${port}`);
+})
+
+const io = socket(connection,{
+    cors:({origin:"*"})
+})
+
+io.on("connect", (socket)=>{
+    console.log("a user conected successfully");
+    socket.on("newmessage", (message)=>{
+        console.log(message);
+        socket.emit("receivemessage", message)
+    })
+    
 })
